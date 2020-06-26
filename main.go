@@ -24,8 +24,9 @@ func downloadImage(url string, filePath string, referer string) (bool, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", url, nil)
 	req.Header.Add("User-Agent", `"Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1"`)
-	req.Header.Add("Accept", "image/webp,image/apng,image/*,*/*;q=1")
-	req.Header.Add("Referer", referer)
+	req.Header.Add("Accept", "image/webp,*/*")
+	req.Header.Add("Host", "img1.mmmw.net")
+	req.Header.Add("Referer", "https://m.mm131.net/")
 	response, err := client.Do(req)
 	if err != nil {
 		return false, err
