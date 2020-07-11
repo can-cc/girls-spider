@@ -18,8 +18,6 @@ type MMItem struct {
 	Tags        []string
 }
 
-const resultDir = "./result"
-
 func downloadImage(url string, filePath string, referer string) (bool, error) {
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", url, nil)
@@ -33,8 +31,7 @@ func downloadImage(url string, filePath string, referer string) (bool, error) {
 	}
 
 	defer response.Body.Close()
-
-	if response.StatusCode == 404 {
+	if response.StatusCode == 404 || response.StatusCode == 599 {
 		return true, nil
 	}
 
@@ -54,7 +51,7 @@ func downloadImage(url string, filePath string, referer string) (bool, error) {
 	return false, nil
 }
 
-func handleItemDetect(item *MMItem) error {
+func handleItemDetect(item *MMItem, resultDir string) error {
 	dirPath := resultDir + "/" + item.Title
 	if _, err := os.Stat(dirPath); !os.IsNotExist(err) {
 		return nil
@@ -77,6 +74,13 @@ func handleItemDetect(item *MMItem) error {
 }
 
 func main() {
+	var resultDir string
+	if len(os.Args) > 1 {
+		resultDir = os.Args[1]
+	} else {
+		resultDir = "result"
+	}
+
 	if _, err := os.Stat(resultDir); os.IsNotExist(err) {
 		if err := os.Mkdir(resultDir, 0755); err != nil {
 			panic(err)
@@ -102,7 +106,7 @@ func main() {
 			Url:    url,
 			Title:  title,
 			ItemID: id,
-		})
+		}, resultDir)
 		if err != nil {
 			panic(err)
 		}
