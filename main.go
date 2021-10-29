@@ -9,7 +9,6 @@ import (
 	"regexp"
 	"strconv"
 	"fmt"
-	"time"
 )
 
 type MMItem struct {
@@ -53,9 +52,7 @@ func downloadImage(url string, filePath string, referer string) (bool, error) {
 }
 
 func handleItemDetect(item *MMItem, resultDir string) error {
-	now := time.Now()
-	sec := now.Unix()      // number of seconds since January 1, 1970 UTC
-	dirPath := resultDir + "/" + fmt.Sprint(sec) +  item.Title
+	dirPath := resultDir + "/" + item.Title
 	if _, err := os.Stat(dirPath); !os.IsNotExist(err) {
 		return nil
 	}
