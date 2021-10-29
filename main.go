@@ -8,6 +8,8 @@ import (
 	"os"
 	"regexp"
 	"strconv"
+	"fmt"
+	"time"
 )
 
 type MMItem struct {
@@ -47,22 +49,35 @@ func downloadImage(url string, filePath string, referer string) (bool, error) {
 	if err != nil {
 		panic(err)
 	}
-	log.Println("save ", filePath, "success")
 	return false, nil
 }
 
 func handleItemDetect(item *MMItem, resultDir string) error {
-	dirPath := resultDir + "/" + item.Title
+	now := time.Now()
+	sec := now.Unix()      // number of seconds since January 1, 1970 UTC
+	dirPath := resultDir + "/" + fmt.Sprint(sec) +  item.Title
 	if _, err := os.Stat(dirPath); !os.IsNotExist(err) {
 		return nil
 	}
 	if err := os.Mkdir(dirPath, 0755); err != nil {
 		return err
 	}
+	is3 := false
+	successNum := 0
 	for i := 1; ; i++ {
 		filePath := dirPath + "/" + strconv.Itoa(i) + ".jpg"
-		url := "https://img1.mmmw.net/pic/" + item.ItemID + "/" + strconv.Itoa(i) + ".jpg"
+		mmIndexNumber := strconv.Itoa(i)
+		if is3 {
+			mmIndexNumber = fmt.Sprintf("/%03d", i)
+		}
+		url := "https://img1.hnllsy.com/pic/" + item.ItemID + "/" + mmIndexNumber + ".jpg"
 		done, err := downloadImage(url, filePath, item.Url)
+		if done && i == 1 {
+			is3 = true
+			i = 0
+			continue
+		}
+		successNum = successNum + 1
 		if done {
 			break
 		}
@@ -70,6 +85,7 @@ func handleItemDetect(item *MMItem, resultDir string) error {
 			panic(err)
 		}
 	}
+	fmt.Println("success number = ", + successNum)
 	return nil
 }
 
